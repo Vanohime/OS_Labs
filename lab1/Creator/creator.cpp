@@ -8,7 +8,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Creator started\n";
 
     if (argc != 3) {
-        throw std::exception("creator.cpp recieved invalid number of arguments");
+        std::cout << "creator.cpp recieved invalid number of arguments";
+        std::cout << "press any key to continue...\n";
+        _getch();
+        return 1;
     }
 
     char* bin_file_name = argv[1];
@@ -17,7 +20,10 @@ int main(int argc, char* argv[]) {
     std::fstream bf(bin_file_name, std::ios::binary | std::ios::out);
 
     if (!bf) {
-        throw std::exception("Unable to create file");
+        std::cout << "Unable to create file";
+        std::cout << "press any key to continue...\n";
+        _getch();
+        return 1;
     }
 
     for (int i = 0; i < num_records; i++) {

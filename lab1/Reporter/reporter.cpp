@@ -9,7 +9,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Reporter started\n";
 
     if (argc != 4) {
-        throw std::exception("reporter.cpp recieved invalid number of arguments");
+        std::cout <<"reporter.cpp recieved invalid number of arguments";
+        std::cout << "press any key to continue...\n";
+        _getch();
+        return 1;
     }
     char* bin_file_name = argv[1];
     char* report_file_name = argv[2];
@@ -29,7 +32,10 @@ int main(int argc, char* argv[]) {
         bf.close();
     }
     else {
-        throw std::exception("Error! Binary file cannot be opened!");
+        std::cout << "Error! Binary file cannot be opened!";
+        std::cout << "press any key to continue...\n";
+        _getch();
+        return 1;
     }
     std::cout << "reporter finished successfully\n";
     std::cout << "press any key to continue...\n";
