@@ -77,7 +77,7 @@ int main() {
         start_process(creator_command_line);
     }
     catch (std::exception e) {
-        std::cerr << "Creator finished with error: " << e.what();
+        std::cerr << "Creator started with error: " << e.what();
         return 1;
     }
 
@@ -105,7 +105,7 @@ int main() {
         start_process(reporter_command_line);
     }
     catch (std::exception e) {
-        std::cerr << "Reporter finished with error: " << e.what();
+        std::cerr << "Reporter started with error: " << e.what();
         return 1;
     }
 
