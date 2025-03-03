@@ -5,7 +5,7 @@ DWORD WINAPI min_max(LPVOID ArrData)
 	ArrayData* data = static_cast<ArrayData*>(ArrData);
 
 	if (data->arr.empty()) {
-		std::cout << "Пустой массив, невозможно найти минимуи и максимум\n";
+		std::cout << "Empty array, can't find min and max\n";
 		return 1;
 	}
 
@@ -23,8 +23,8 @@ DWORD WINAPI min_max(LPVOID ArrData)
 	data->min = min;
 	data->max = max;
 
-	std::cout << "Минимальный элемент масива " << min << '\n';
-	std::cout << "Максимальный элемент масива " << max << '\n';
+	std::cout << "Min: " << min << '\n';
+	std::cout << "Max: " << max << '\n';
 
 	return 0;
 
@@ -36,7 +36,7 @@ DWORD WINAPI average(LPVOID ArrData)
 	ArrayData* data = static_cast<ArrayData*>(ArrData);
 
 	if (data->arr.empty()) {
-		std::cout << "Пустой массив, невозможно найти среднее\n";
+		std::cout << "Empty array, can't find average\n";
 		return 1;
 	}
 
@@ -48,7 +48,7 @@ DWORD WINAPI average(LPVOID ArrData)
 
 	data->average = (double)sum / data->arr.size();
 
-	std::cout << "Среднее арифметическое элементов масива " << data->average << '\n';
+	std::cout << "Average: " << data->average << '\n';
 
 	return 0;
 
