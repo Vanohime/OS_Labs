@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "my_threads.h"
 #include "ArrayData.h"
+#include <conio.h>
 
 void start_thread(DWORD(*thread)(LPVOID), void* data) {
     HANDLE thread_handle;
@@ -38,6 +39,9 @@ int main() {
 
     start_thread(min_max, (void*)data);
     start_thread(average, (void*)data);
+
+    std::cout << "Press any key to continue...";
+    _getch();
 
     delete data; 
 

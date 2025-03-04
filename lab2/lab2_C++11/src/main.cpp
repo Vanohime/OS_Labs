@@ -4,6 +4,7 @@
 #include <thread>
 #include "my_threads.h"
 #include "ArrayData.h"
+#include <conio.h>
 
 void start_thread(void(*thread)(ArrayData&), ArrayData& data) {
     std::thread t(thread, std::ref(data));
@@ -27,6 +28,10 @@ int main() {
 
     start_thread(min_max, *data);
     start_thread(average, *data);
+
+    std::cout << "Press any key to continue...";
+    _getch();
+    
 
     return 0;
 }
