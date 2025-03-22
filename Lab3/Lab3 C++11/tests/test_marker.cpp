@@ -11,7 +11,7 @@ protected:
 
     void SetUp() override {
         data.size = 10;
-        data.arr = new int[data.size]();  
+        data.arr = new int[data.size]();
         data.marker_index = 1;
 
         InitializeCriticalSection(&cs);
@@ -38,9 +38,9 @@ TEST_F(MarkerTest, MarksAtLeastOneElement) {
     HANDLE hThread = CreateThread(NULL, 0, marker, &data, 0, NULL);
     ASSERT_NE(hThread, nullptr);
 
-    SetEvent(data.startEvent);  
-    Sleep(50);  
-    SetEvent(data.stopEvent); 
+    SetEvent(data.startEvent);
+    Sleep(50);
+    SetEvent(data.stopEvent);
     Sleep(50);
 
     bool hasMarked = false;
@@ -50,8 +50,8 @@ TEST_F(MarkerTest, MarksAtLeastOneElement) {
             break;
         }
     }
-    
-    SetEvent(data.exitEvent);  
+
+    SetEvent(data.exitEvent);
     SetEvent(data.resumeEvent);
 
     WaitForSingleObject(hThread, INFINITE);
@@ -68,7 +68,7 @@ TEST_F(MarkerTest, ClearsMarksOnExit) {
     Sleep(50);
     SetEvent(data.stopEvent);
     Sleep(50);
-    SetEvent(data.exitEvent);  
+    SetEvent(data.exitEvent);
     SetEvent(data.resumeEvent);
 
     WaitForSingleObject(hThread, INFINITE);
@@ -80,7 +80,7 @@ TEST_F(MarkerTest, ClearsMarksOnExit) {
 }
 
 TEST_F(MarkerTest, SkipsMarkedElements) {
-    data.arr[3] = 99;  
+    data.arr[3] = 99;
 
     HANDLE hThread = CreateThread(NULL, 0, marker, &data, 0, NULL);
     ASSERT_NE(hThread, nullptr);
