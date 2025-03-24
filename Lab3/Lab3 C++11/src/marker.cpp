@@ -13,23 +13,25 @@ DWORD WINAPI marker(LPVOID marker_data) {
 
         int x = rand() % data->size;
 
-        EnterCriticalSection(&(data->cs));
         if (data->arr[x] == 0) {
-
-            Sleep(5);
-            data->arr[x] = data->marker_index;
-            Sleep(5);
-            num_marked++;
-            marked_ind.push_back(x);
-
-            LeaveCriticalSection(&(data->cs));
+            
+            {
+                std::lock_guard<std::mutex> lock(*data->mtx);
+                Sleep(5);
+                data->arr[x] = data->marker_index;
+                Sleep(5);
+                num_marked++;
+                marked_ind.push_back(x);
+            }
         }
         else {
-            std::cout << "I am marker number " << data->marker_index << '\n'
-                << "I marked " << num_marked << " elements\n"
-                << "I cannot mark element with index " << x << '\n';
-
-            std::cout << '\n';
+            {
+                std::lock_guard<std::mutex> lock(*data->mtx);
+                std::cout << "I am marker number " << data->marker_index << '\n'
+                    << "I marked " << num_marked << " elements\n"
+                    << "I cannot mark element with index " << x << '\n';
+                std::cout << '\n';
+            }
             SetEvent(data->stopEvent);
 
             WaitForSingleObject(data->resumeEvent, INFINITE);
@@ -38,14 +40,15 @@ DWORD WINAPI marker(LPVOID marker_data) {
             DWORD res = WaitForSingleObject(data->exitEvent, 0);
 
             if (res == WAIT_OBJECT_0) {
-                // reset marked elements to 0
-                for (int ind : marked_ind) {
-                    data->arr[ind] = 0;
+                {
+                    std::lock_guard<std::mutex> lock(*data->mtx);
+                    for (int ind : marked_ind) {
+                        data->arr[ind] = 0;
+                    }
                 }
-                LeaveCriticalSection(&(data->cs));
+                
                 return 0;
             }
-            LeaveCriticalSection(&(data->cs));
         }
     }
     return 0;

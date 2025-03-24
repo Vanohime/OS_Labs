@@ -2,9 +2,9 @@
 #define MARKER_H
 
 #include <iostream>
-#include <list>
 #include <Windows.h>
 #include "MarkerData.h"
+#include <vector>
 
 DWORD WINAPI marker(LPVOID marker_data);
 

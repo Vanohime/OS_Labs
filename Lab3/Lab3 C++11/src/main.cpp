@@ -1,14 +1,15 @@
 #include "marker.h"
 #include <unordered_set>
-#include <vector>
 #include <iostream>
+#include <mutex>
+#include "MarkerData.h"
 
 int main() {
     int size, numThreads;
     std::cout << "Enter array size: ";
     std::cin >> size;
 
-    std::vector<int> array(size, 0);  // Use vector instead of raw array
+    int* array = new int[size]();
 
     std::cout << "Enter number of marker threads: ";
     std::cin >> numThreads;
@@ -24,34 +25,36 @@ int main() {
     for (int i = 0; i < numThreads; i++)
         active_threads.insert(i);
 
-    CRITICAL_SECTION cs;
-    InitializeCriticalSection(&cs);
+    std::mutex mtx;
 
     for (int i = 0; i < numThreads; i++) {
         stopEvents[i] = CreateEvent(nullptr, TRUE, FALSE, nullptr);
         resumeEvents[i] = CreateEvent(nullptr, TRUE, FALSE, nullptr);
         exitEvents[i] = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+        //MarkerData md(i + 1, size, array.data(), startEvent, stopEvents[i], resumeEvents[i], exitEvents[i], mtx);
 
-        params[i] = { i + 1, size, array.data(), startEvent, stopEvents[i], resumeEvents[i], exitEvents[i], cs };
+        params[i] = { i + 1, size, array, startEvent, stopEvents[i], resumeEvents[i], exitEvents[i], &mtx };
         threads[i] = CreateThread(nullptr, 0, marker, &params[i], 0, nullptr);
     }
 
     SetEvent(startEvent);
     while (!active_threads.empty()) {
 
-        // wait for all markers to run
+        
         WaitForMultipleObjects(numThreads, stopEvents.data(), TRUE, INFINITE);
 
         // print array
-        EnterCriticalSection(&cs);
-        std::cout << "Array: ";
-        for (const auto& elem : array) {
-            std::cout << elem << " ";
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            std::cout << "Array: ";
+            for (int i = 0; i < size; ++i) {
+                std::cout << array[i] << " ";
+            }
+            std::cout << "\n";
         }
-        std::cout << "\n";
-        LeaveCriticalSection(&cs);
 
         // ask user which marker to stop
+        
         int threadToStop;
         std::cout << "Enter marker thread number to stop: ";
         std::cin >> threadToStop;
@@ -77,15 +80,17 @@ int main() {
         CloseHandle(threads[threadToStop - 1]);
 
         // print updated array
-        EnterCriticalSection(&cs);
-        std::cout << "Updated Array: ";
-        for (const auto& elem : array) {
-            std::cout << elem << " ";
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            std::cout << "Updated Array: ";
+            for (int i = 0; i < size; ++i) {
+                std::cout << array[i] << " ";
+            }
+            std::cout << "\n";
         }
-        std::cout << "\n";
-        LeaveCriticalSection(&cs);
     }
 
-    DeleteCriticalSection(&cs);
+    delete[] array;
+    
     return 0;
 }

@@ -3,8 +3,10 @@
 
 #pragma once
 #include <Windows.h>
+#include <mutex>
 
 struct MarkerData {
+
     int marker_index;
     int size;
     int* arr;
@@ -12,7 +14,8 @@ struct MarkerData {
     HANDLE stopEvent;
     HANDLE resumeEvent;
     HANDLE exitEvent;
-    CRITICAL_SECTION cs;
+    std::mutex* mtx;
+
 };
 
 #endif MARKER_DATA_H

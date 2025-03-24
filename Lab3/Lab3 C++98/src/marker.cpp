@@ -1,12 +1,13 @@
 #include "marker.h"
 
+
 DWORD WINAPI marker(LPVOID marker_data) {
     MarkerData* data = static_cast<MarkerData*>(marker_data);
 
     WaitForSingleObject(data->startEvent, INFINITE);
 
     srand(data->marker_index);
-    std::list<int> marked_ind;
+    std::vector<int> marked_ind;
     int num_marked = 0;
 
     while (true) {
@@ -39,7 +40,7 @@ DWORD WINAPI marker(LPVOID marker_data) {
 
             if (res == WAIT_OBJECT_0) {
                 for (int i = 0; i < marked_ind.size(); i++) {
-                    data->arr[i] = 0;
+                    data->arr[marked_ind[i]] = 0;
                 }
                 LeaveCriticalSection(&(data->cs));
                 return 0;

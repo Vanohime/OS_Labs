@@ -1,6 +1,6 @@
 #include "marker.h"
-#include <list>
 #include <iostream>
+
 
 int main() {
     int size, numThreads;
@@ -22,7 +22,9 @@ int main() {
     HANDLE* resumeEvents = new HANDLE[numThreads];
     HANDLE* exitEvents = new HANDLE[numThreads];
 
-    std::list<int> active_threads;
+    std::vector<int> active_threads;
+    int active_count = numThreads;
+
     for (int i = 0; i < numThreads; i++) {
         active_threads.push_back(i);
     }
@@ -46,7 +48,7 @@ int main() {
     }
 
     SetEvent(startEvent);
-    while (!active_threads.empty()) {
+    while (active_count) {
 
         // wait for all markers to run
         WaitForMultipleObjects(numThreads, stopEvents, TRUE, INFINITE);
@@ -60,11 +62,25 @@ int main() {
         std::cout << "\n";
         LeaveCriticalSection(&cs);
 
+        
         // ask user which marker to stop
         int threadToStop;
-        std::cout << "Enter marker thread number to stop: ";
-        std::cin >> threadToStop;
+        bool continue_reading = false;
+        do {
+            std::cout << "Enter marker thread number to stop: ";
+            std::cin >> threadToStop;
+            
+            if (threadToStop <= 0 || threadToStop > numThreads) {
+                std::cout << "There is no marker with this number, try again\n\n";
+                continue_reading = true;
+                continue;
+            }
+            if (active_threads[threadToStop - 1] == -1) {
+                std::cout << "This marker is already stopped, try again\n\n";
+            }
 
+        } while (continue_reading || active_threads[threadToStop - 1] == -1 );
+        
         // tell it to exit
         SetEvent(exitEvents[threadToStop - 1]);
 
@@ -72,20 +88,18 @@ int main() {
         SetEvent(resumeEvents[threadToStop - 1]);
 
         // delete it from active
-        std::list<int>::iterator it = active_threads.begin();
-        for (int i = 0; i < active_threads.size(); i++, ++it) {
-            if (*it == threadToStop - 1) {
-                active_threads.erase(it);
-                break;
-            }
-        }
+        active_threads[threadToStop - 1] = -1;
+        active_count--;
 
         // tell every active marker (NOT including the one to be exited) to resume
-        // and reset their stop events
-        it = active_threads.begin();
-        for (int i = 0; i < active_threads.size(); i++, ++it) {
-            ResetEvent(stopEvents[*it]);
-            SetEvent(resumeEvents[*it]);
+        // and reset their stop event
+
+        for (int i = 0; i < active_threads.size(); i++) {
+            if (active_threads[i] != -1) {
+                ResetEvent(stopEvents[active_threads[i]]);
+                SetEvent(resumeEvents[active_threads[i]]);
+            }
+            
         }
 
         // wait for marker to be exited, then close its handle
