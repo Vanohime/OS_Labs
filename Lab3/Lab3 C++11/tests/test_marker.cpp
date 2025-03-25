@@ -7,16 +7,13 @@
 class MarkerTest : public ::testing::Test {
 protected:
     MarkerData data;
-    CRITICAL_SECTION cs;
 
     void SetUp() override {
         data.size = 10;
         data.arr = new int[data.size]();
         data.marker_index = 1;
-
-        InitializeCriticalSection(&cs);
-        data.cs = cs;
-
+        //std::mutex mtx;
+        //data.mtx = &mtx;
         data.startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
         data.stopEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
         data.resumeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -24,7 +21,6 @@ protected:
     }
 
     void TearDown() override {
-        DeleteCriticalSection(&cs);
         delete[] data.arr;
 
         CloseHandle(data.startEvent);
@@ -35,6 +31,8 @@ protected:
 };
 
 TEST_F(MarkerTest, MarksAtLeastOneElement) {
+    std::mutex mtx;
+    data.mtx = &mtx;
     HANDLE hThread = CreateThread(NULL, 0, marker, &data, 0, NULL);
     ASSERT_NE(hThread, nullptr);
 
@@ -61,6 +59,8 @@ TEST_F(MarkerTest, MarksAtLeastOneElement) {
 }
 
 TEST_F(MarkerTest, ClearsMarksOnExit) {
+    std::mutex mtx;
+    data.mtx = &mtx;
     HANDLE hThread = CreateThread(NULL, 0, marker, &data, 0, NULL);
     ASSERT_NE(hThread, nullptr);
 
@@ -81,7 +81,8 @@ TEST_F(MarkerTest, ClearsMarksOnExit) {
 
 TEST_F(MarkerTest, SkipsMarkedElements) {
     data.arr[3] = 99;
-
+    std::mutex mtx;
+    data.mtx = &mtx;
     HANDLE hThread = CreateThread(NULL, 0, marker, &data, 0, NULL);
     ASSERT_NE(hThread, nullptr);
 

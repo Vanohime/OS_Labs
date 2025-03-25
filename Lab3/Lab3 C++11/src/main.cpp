@@ -56,8 +56,24 @@ int main() {
         // ask user which marker to stop
         
         int threadToStop;
-        std::cout << "Enter marker thread number to stop: ";
-        std::cin >> threadToStop;
+        bool continue_reading = false;
+        do {
+            std::cout << "Enter marker thread number to stop: ";
+            std::cin >> threadToStop;
+
+            if (threadToStop <= 0 || threadToStop > numThreads) {
+                std::cout << "There is no marker with this number, try again\n\n";
+                continue_reading = true;
+                continue;
+            }
+            else {
+                continue_reading = false;
+            }
+            if (active_threads.find(threadToStop - 1) == active_threads.end()) {
+                std::cout << "This marker is already stopped, try again\n\n";
+            }
+
+        } while (continue_reading || active_threads.find(threadToStop - 1) == active_threads.end());
 
         // tell it to exit
         SetEvent(exitEvents[threadToStop - 1]);

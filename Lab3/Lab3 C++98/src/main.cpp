@@ -75,6 +75,9 @@ int main() {
                 continue_reading = true;
                 continue;
             }
+            else {
+                continue_reading = false;
+            }
             if (active_threads[threadToStop - 1] == -1) {
                 std::cout << "This marker is already stopped, try again\n\n";
             }
