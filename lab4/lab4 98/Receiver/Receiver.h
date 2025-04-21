@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <windows.h>
+#define private public
 
 class Receiver {
 private:
@@ -24,6 +25,7 @@ private:
 
 public:
 
+    std::string get_filename();
     Receiver();
 
     Receiver(const std::string& file_name, int notes, int senders);

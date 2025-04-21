@@ -2,6 +2,7 @@
 #include <string>
 #include <windows.h>
 #include <fstream>
+#define private public
 
 class Sender {
 private:
@@ -13,10 +14,11 @@ private:
     HANDLE hOutputSemaphore = nullptr;
 
     int get_user_choice();
-    void open_synchronization_objects();
+    bool open_synchronization_objects();
     void send_loop();
 
 public:
-    Sender(const std::string& file_name);
+    std::string get_filename();
+    Sender(const std::string& file_name = "");
     void start();
 };

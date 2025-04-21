@@ -130,3 +130,7 @@ void Receiver::start() {
     std::cout << "\n";
     system("pause");
 }
+
+std::string Receiver::get_filename() {
+    return this->bin_file_name;
+}

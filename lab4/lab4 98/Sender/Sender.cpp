@@ -23,17 +23,18 @@ int Sender::get_user_choice() {
     }
 }
 
-void Sender::open_synchronization_objects() {
+bool Sender::open_synchronization_objects() {
     hStartEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, "Process Started");
     hInputSemaphore = OpenSemaphore(EVENT_ALL_ACCESS, FALSE, "Input Semaphore started");
     hOutputSemaphore = OpenSemaphore(EVENT_ALL_ACCESS, FALSE, "Output Semaphore started");
 
     if (!hStartEvent || !hInputSemaphore || !hOutputSemaphore) {
         std::cerr << "Не удалось открыть объекты синхронизации.\n";
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     SetEvent(hStartEvent);
+    return true;
 }
 
 void Sender::send_loop() {
@@ -64,16 +65,21 @@ void Sender::send_loop() {
             std::cout << "Завершение процесса...\n";
             break;
         }
-        else {
-            std::cout << "Неправильный ввод! Попробуйте ещё раз.\n";
-            ans = get_user_choice();
-        }
     }
 }
 
 
 void Sender::start() {
     setlocale(LC_ALL, "ru");
-    open_synchronization_objects();
+
+    if (!open_synchronization_objects()) {
+        std::cerr << "Sender is unable to open synchronization objects\n";
+        return;
+    }
+    
     send_loop();
+}
+
+std::string Sender::get_filename() {
+    return this->file_name;
 }
