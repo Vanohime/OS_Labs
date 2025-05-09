@@ -1,16 +1,23 @@
 #include "Client\Client.h"
 #include <iostream>
 
-int main() {
-    
+int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "ru");
 
-    try {
-        Client client;
-        client.run();
+    if (argc < 2) {
+        std::cerr << "Ожидается аргумент: номер клиента\n";
+        return 1;
     }
-    catch (const std::exception& ex) {
-        std::cerr << "Произошла ошибка: " << ex.what() << std::endl;
+
+    int pipeIndex = std::stoi(argv[1]);
+
+    try {
+        Client client(pipeIndex);
+        client.run();
+
+    }
+    catch (...) {
+        std::cerr << "Ошибка клиента";
         return 1;
     }
 

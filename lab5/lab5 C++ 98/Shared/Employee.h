@@ -2,15 +2,8 @@
 #include <iostream>
 #include <string>
 
-class Employee {
-public:
+struct Employee {
     int id;
-    std::string name;
+    char name[10];
     double hours;
-
-    Employee() = default;
-    Employee(int id, const std::string& name, double hours);
-
-    void serialize(std::ostream& out) const;
-    void deserialize(std::istream& in);
 };

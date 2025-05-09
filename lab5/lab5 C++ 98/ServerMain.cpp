@@ -1,21 +1,25 @@
+#include <iostream>
 #include "Server\Server.h"
 
 int main() {
-    std::string fileName;
-    int employeeCount, clientCount;
     setlocale(LC_ALL, "ru");
+    std::string fileName;
+    int empCount, clientCount;
+
     std::cout << "¬ведите им€ файла: ";
     std::cin >> fileName;
-    std::cout << "¬ведите кол-во сотрудников: ";
-    std::cin >> employeeCount;
-    std::cout << "¬ведите кол-во клиентов: ";
+
+    std::cout << "¬ведите количество сотрудников: ";
+    std::cin >> empCount;
+
+    std::cout << "¬ведите количество клиентов: ";
     std::cin >> clientCount;
 
-    Server server(fileName, employeeCount, clientCount);
+    Server server(fileName, empCount, clientCount);
     server.initializeEmployees();
     server.startClients();
     server.startPipeListeners();
     server.waitForClients();
-
+    server.printFile();
     return 0;
 }

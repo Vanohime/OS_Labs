@@ -1,9 +1,9 @@
 #pragma once
-#include "..\Shared\Employee.h"
-#include <vector>
-#include <string>
-#include <windows.h>
 
+#include <string>
+#include <vector>
+#include <windows.h>
+#include "..\Shared\Employee.h"
 class Server {
 private:
     std::string fileName;
@@ -14,6 +14,7 @@ private:
     std::vector<HANDLE> pipes;
     std::vector<HANDLE> threads;
     std::vector<HANDLE> clientEvents;
+    std::vector<HANDLE> processHandles;
 
 public:
     Server(const std::string& fileName, int employeeCount, int clientCount);
@@ -23,6 +24,7 @@ public:
     void startClients();
     void startPipeListeners();
     void waitForClients();
+    void printFile();
 
 private:
     void loadFromFile();

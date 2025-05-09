@@ -1,21 +1,38 @@
 #include "Client.h"
 #include <iostream>
+#include <stdexcept>
 
-Client::Client() {
-    HANDLE hEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, "Process Started");
-    SetEvent(hEvent);
-    pipe = CreateFile("\\\\.\\pipe\\pipeName", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+Client::Client(int pipeIndex) {
+    pipeName = "\\\\.\\pipe\\pipe" + std::to_string(pipeIndex);
+
+    // Подключение к существующему пайпу
+    pipe = CreateFile(
+        pipeName.data(),
+        GENERIC_READ | GENERIC_WRITE,
+        0, NULL, OPEN_EXISTING,
+        0, NULL
+    );
+
+    if (pipe == INVALID_HANDLE_VALUE) {
+        throw std::exception("Не удалось подключиться к каналу");
+    }
 }
 
 Client::~Client() {
-    DisconnectNamedPipe(pipe);
-    CloseHandle(pipe);
+    if (pipe != INVALID_HANDLE_VALUE) {
+        //CloseHandle(pipe);
+    }
 }
 
 void Client::run() {
-    int ans;
+    int ans = 0;
+
     while (true) {
-        std::cout << "Выберите метод\n1. Модифицировать запись\n2. Прочитать запись\n3. Завершить процесс\n";
+        std::cout << "\nВыберите метод:\n"
+            << "1. Модифицировать запись\n"
+            << "2. Прочитать запись\n"
+            << "3. Завершить процесс\n";
+
         std::cin >> ans;
 
         if (ans == 1) {
@@ -42,9 +59,9 @@ void Client::run() {
 
 void Client::modifyEmployee(int id) {
     sendMessage(id * 10 + 1);
-    Employee emp = receiveEmployee();
 
-    std::cout << "ID: " << emp.id << "\nИмя: " << emp.name << "\nЧасы: " << emp.hours << "\n";
+    Employee emp = receiveEmployee();
+    std::cout << "Текущие данные: ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
     std::cout << "Введите новое имя: ";
     std::cin >> emp.name;
@@ -52,31 +69,41 @@ void Client::modifyEmployee(int id) {
     std::cin >> emp.hours;
 
     sendEmployee(emp);
-    sendMessage(1);
+    sendMessage(1); 
 }
 
 void Client::readEmployee(int id) {
     sendMessage(id * 10 + 2);
     Employee emp = receiveEmployee();
+    std::cout << "Current ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
-    std::cout << "ID: " << emp.id << "\nИмя: " << emp.name << "\nЧасы: " << emp.hours << "\n";
-
-    sendMessage(1);
+    sendMessage(1); 
 }
 
 void Client::sendMessage(int message) {
     DWORD written;
-    WriteFile(pipe, &message, sizeof(message), &written, NULL);
+    if (!WriteFile(pipe, &message, sizeof(message), &written, NULL)) {
+        std::cerr << "Ошибка отправки сообщения. Код: " << GetLastError() << "\n";
+        throw std::exception("Ошибка отправки сообщения");
+    }
+
 }
 
-void Client::sendEmployee(const Employee& emp) {
+
+void Client::sendEmployee(Employee emp) {
     DWORD written;
-    WriteFile(pipe, &emp, sizeof(emp), &written, NULL);
+    if (!WriteFile(pipe, &emp, sizeof(Employee), &written, NULL)) {
+        throw std::runtime_error("Ошибка отправки сотрудника");
+    }
 }
 
 Employee Client::receiveEmployee() {
     Employee emp;
     DWORD read;
-    ReadFile(pipe, &emp, sizeof(emp), &read, NULL);
+    if (!ReadFile(pipe, &emp, sizeof(Employee), &read, NULL)) {
+        std::cerr << "Ошибка чтения сотрудника. Код: " << GetLastError() << "\n";
+        throw std::runtime_error("Ошибка чтения сотрудника");
+    }
     return emp;
 }
+

@@ -12,8 +12,8 @@ endif()
 project ("lab5 C++ 98")
 
 # Add source to this project's executable.
-add_executable (Server   "Client/Client.h" "Shared/Employee.h" "Shared/Employee.cpp" "Client/Client.cpp" "Server/Server.h" "Server/Server.cpp" "ServerMain.cpp")
-add_executable (Client "Client/Client.h" "Shared/Employee.h" "Shared/Employee.cpp" "Client/Client.cpp" "ClientMain.cpp")
+add_executable (Server   "Client/Client.h" "Shared/Employee.h"  "Client/Client.cpp" "Server/Server.h" "Server/Server.cpp" "ServerMain.cpp")
+add_executable (Client "Client/Client.h" "Shared/Employee.h"  "Client/Client.cpp" "ClientMain.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Server PROPERTY CXX_STANDARD 20)
