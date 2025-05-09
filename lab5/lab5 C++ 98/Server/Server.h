@@ -15,6 +15,7 @@ private:
     std::vector<HANDLE> threads;
     std::vector<HANDLE> clientEvents;
     std::vector<HANDLE> processHandles;
+    std::vector<std::pair<HANDLE, HANDLE>> accessAllowedEvents;
 
 public:
     Server(const std::string& fileName, int employeeCount, int clientCount);

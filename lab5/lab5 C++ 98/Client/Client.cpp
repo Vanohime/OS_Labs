@@ -116,3 +116,9 @@ Employee Client::receiveEmployee() {
     return emp;
 }
 
+int Client::getStatus() {
+    int message;
+    DWORD bytesRead = 0;
+    bool success = ReadFile(pipe, &message, sizeof(message), &bytesRead, NULL);
+    return success ? message : -1;
+}

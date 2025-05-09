@@ -19,5 +19,6 @@ private:
     void readEmployee(int id);
     void sendMessage(int message);
     void sendEmployee(Employee emp);
+    int getStatus();
     Employee receiveEmployee();
 };

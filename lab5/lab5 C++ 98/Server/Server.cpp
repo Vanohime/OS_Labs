@@ -10,6 +10,7 @@ struct ThreadParam {
     HANDLE pipe;
     std::vector<Employee>* employees;
     std::vector<HANDLE>* semaphores;
+    std::vector<std::pair<HANDLE, HANDLE>>* accessEvents;
     std::string fileName;
     int clientCount;
 };
@@ -18,18 +19,27 @@ Server::Server(const std::string& fileName, int employeeCount, int clientCount)
     : fileName(fileName), clientCount(clientCount) {
     employees.resize(employeeCount);
     semaphores.resize(employeeCount);
+    accessAllowedEvents.resize(employeeCount);
 
     for (int i = 0; i < employeeCount; ++i) {
         semaphores[i] = CreateSemaphore(NULL, clientCount, clientCount, NULL);
     }
+    for (int i = 0; i < employeeCount; ++i) {
+        accessAllowedEvents[i] = { CreateEvent(NULL, FALSE, TRUE, "read event"),
+            CreateEvent(NULL, FALSE, TRUE, "write event") };
+    }
+
 }
 
 Server::~Server() {
     for (HANDLE h : semaphores) CloseHandle(h);
-    //for (HANDLE h : pipes) CloseHandle(h);
     for (HANDLE h : threads) CloseHandle(h);
     for (HANDLE h : clientEvents) CloseHandle(h);
     for (HANDLE h : processHandles) CloseHandle(h);
+    for (std::pair<HANDLE, HANDLE> p : accessAllowedEvents) {
+        CloseHandle(p.first); 
+        CloseHandle(p.second);
+    }
 }
 
 void Server::initializeEmployees() {
@@ -72,7 +82,7 @@ void Server::startPipeListeners() {
 
         pipes.push_back(pipe);
 
-        ThreadParam* param = new ThreadParam{ pipe, &employees, &semaphores, fileName, clientCount };
+        ThreadParam* param = new ThreadParam{ pipe, &employees, &semaphores, &accessAllowedEvents, fileName, clientCount };
         HANDLE hThread = CreateThread(NULL, 0, handleClient, param, 0, NULL);
         threads.push_back(hThread); 
     }
@@ -114,7 +124,8 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
     ThreadParam* p = static_cast<ThreadParam*>(param);
     HANDLE pipe = p->pipe;
     auto& employees = *p->employees;
-    auto& semaphores = *p->semaphores;
+    //auto& semaphores = *p->semaphores;
+    auto& accessEvents = *p->accessEvents;
     std::string fileName = p->fileName;
     int clientCount = p->clientCount;
 
@@ -131,9 +142,14 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
         int op = message % 10;
 
         if (op == 1) { //modify
-            for (int i = 0; i < clientCount; ++i) {
+            /*for (int i = 0; i < clientCount; ++i) {
                 WaitForSingleObject(semaphores[id - 1], INFINITE);
-            }
+            }*/
+
+            //forbid both reading and writing
+            HANDLE evs[2] = { accessEvents[id - 1].first, accessEvents[id - 1].second};
+            WaitForMultipleObjects(2, evs, TRUE, INFINITE);
+
             Employee* emp = new Employee;
             *emp = employees[id - 1];
             bool written = WriteFile(pipe, emp, sizeof(Employee), &bytesWritten, NULL);
@@ -158,22 +174,37 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
             }
             out.close();
 
-            int ack;
-            ReadFile(pipe, &ack, sizeof(int), &bytesRead, NULL);
-            if (ack == 1) {
-                for (int i = 0; i < clientCount; ++i) {
+            int status;
+            ReadFile(pipe, &status, sizeof(int), &bytesRead, NULL);
+            if (status == 1) {
+                /*for (int i = 0; i < clientCount; ++i) {
                     ReleaseSemaphore(semaphores[id - 1], 1, NULL);
-                }
+                }*/
+                //allow both reading and writing
+                SetEvent(evs[0]);
+                SetEvent(evs[1]);
             }
         }
         else if (op == 2) { // Read
-            WaitForSingleObject(semaphores[id - 1], INFINITE);
+            //WaitForSingleObject(semaphores[id - 1], INFINITE);
+
+            //wait for the reading allowance
+            WaitForSingleObject(accessEvents[id - 1].first, INFINITE);
+            //allow reading back
+            SetEvent(accessEvents[id - 1].first);
+            //forbid writing
+            ResetEvent(accessEvents[id - 1].second);
+
+            
+
             WriteFile(pipe, &employees[id - 1], sizeof(Employee), &bytesWritten, NULL);
 
-            int ack;
-            ReadFile(pipe, &ack, sizeof(int), &bytesRead, NULL);
-            if (ack == 1) {
-                ReleaseSemaphore(semaphores[id - 1], 1, NULL);
+            int status;
+            ReadFile(pipe, &status, sizeof(int), &bytesRead, NULL);
+            if (status == 1) {
+                //ReleaseSemaphore(semaphores[id - 1], 1, NULL);
+                //allow writing
+                SetEvent(accessEvents[id - 1].second);
             }
         }
         else if (op == 3) {
