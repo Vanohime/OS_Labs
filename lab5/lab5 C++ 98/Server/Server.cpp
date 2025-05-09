@@ -151,7 +151,7 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
             {
                 std::cout << "Невозможно прочесть данные\n";
             }
-
+            employees[id - 1] = *emp;
             std::ofstream out(fileName);
             for (auto& emp : employees) {
                 out << emp.id << ' ' << emp.name << ' ' << emp.hours << '\n';

@@ -1,6 +1,8 @@
 #include "Client.h"
 #include <iostream>
 #include <stdexcept>
+#include <limits>
+
 
 Client::Client(int pipeIndex) {
     pipeName = "\\\\.\\pipe\\pipe" + std::to_string(pipeIndex);
@@ -69,6 +71,10 @@ void Client::modifyEmployee(int id) {
     std::cin >> emp.hours;
 
     sendEmployee(emp);
+    
+    std::cout << "enter char to end access to the record\n";
+    char c;
+    std::cin >> c;
     sendMessage(1); 
 }
 
@@ -77,6 +83,9 @@ void Client::readEmployee(int id) {
     Employee emp = receiveEmployee();
     std::cout << "Current ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
+    std::cout << "enter char to end access to the record\n";
+    char c;
+    std::cin >> c;
     sendMessage(1); 
 }
 
