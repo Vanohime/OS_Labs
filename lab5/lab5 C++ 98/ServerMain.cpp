@@ -15,19 +15,23 @@ int main() {
     std::cout << "Введите количество клиентов: ";
     std::cin >> clientCount;
 
-    std::cout << "Press Y if you want to set custom I/O streams for the client process. Otherwise press N\n";
     char c;
+    std::cout << "Would you like to enter custom input/output file names? (y/n)\n";
     std::cin >> c;
-    std::string custom_in = "";
-    std::string custom_out = "";
+    std::vector<std::pair<std::string, std::string>> file_pairs (clientCount);
     if (c == 'y' || c == 'Y') {
-        std::cout << "Enter input file name\n";
-        std::cin >> custom_in;
-        std::cout << "Enter output file name\n";
-        std::cin >> custom_out;
+
+        for (int i = 0; i < clientCount; ++i) {
+            std::string custom_in, custom_out;
+            std::cout << "Enter input file name #" << (i + 1) << ":\n";
+            std::cin >> custom_in;
+            std::cout << "Enter output file name #" << (i + 1) << ":\n";
+            std::cin >> custom_out;
+            file_pairs[i] = { custom_in, custom_out };
+        }
     }
 
-    Server server(fileName, empCount, clientCount, custom_in, custom_out);
+    Server server(fileName, empCount, clientCount, file_pairs);
     server.initializeEmployees();
     server.startClients();
     server.startPipeListeners();

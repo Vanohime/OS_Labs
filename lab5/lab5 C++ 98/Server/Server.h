@@ -10,18 +10,16 @@ private:
     std::vector<Employee> employees;
     int clientCount;
 
-    //std::vector<HANDLE> semaphores;
     std::vector<HANDLE> pipes;
     std::vector<HANDLE> threads;
     std::vector<HANDLE> clientEvents;
     std::vector<HANDLE> processHandles;
     std::vector<std::pair<HANDLE, HANDLE>> accessAllowedEvents;
 
-    std::string custom_in;
-    std::string custom_out;
+    std::vector<std::pair<std::string, std::string>> file_pairs;
 
 public:
-    Server(const std::string& fileName, int employeeCount, int clientCount, std::string in = "", std::string out = "");
+    Server(const std::string& fileName, int employeeCount, int clientCount, std::vector<std::pair<std::string, std::string>> _file_pairs);
     ~Server();
 
     void initializeEmployees();
