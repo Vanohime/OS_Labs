@@ -14,8 +14,8 @@ struct ThreadParam {
     int clientCount;
 };
 
-Server::Server(const std::string& fileName, int employeeCount, int clientCount)
-    : fileName(fileName), clientCount(clientCount) {
+Server::Server(const std::string& fileName, int employeeCount, int clientCount, std::string in, std::string out)
+    : fileName(fileName), clientCount(clientCount), custom_in(in), custom_out(out) {
     employees.resize(employeeCount);
     accessAllowedEvents.resize(employeeCount);
 
@@ -54,7 +54,12 @@ void Server::startClients() {
         ZeroMemory(&si, sizeof(STARTUPINFO));
         si.cb = sizeof(STARTUPINFO);
         std::string cmd = "Client.exe " + std::to_string(i);
-
+        if (custom_in != "" && custom_out != "") {
+            cmd += " ";
+            cmd += custom_in;
+            cmd += " ";
+            cmd += custom_out;
+        }
         if (CreateProcess(NULL, cmd.data(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
             CloseHandle(pi.hThread);
             processHandles.push_back(pi.hProcess);

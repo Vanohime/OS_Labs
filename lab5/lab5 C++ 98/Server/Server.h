@@ -17,8 +17,11 @@ private:
     std::vector<HANDLE> processHandles;
     std::vector<std::pair<HANDLE, HANDLE>> accessAllowedEvents;
 
+    std::string custom_in;
+    std::string custom_out;
+
 public:
-    Server(const std::string& fileName, int employeeCount, int clientCount);
+    Server(const std::string& fileName, int employeeCount, int clientCount, std::string in = "", std::string out = "");
     ~Server();
 
     void initializeEmployees();
