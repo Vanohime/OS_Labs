@@ -137,13 +137,18 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
 
         if (op == 1) { //modify
 
-            
-            HANDLE evs[2] = { accessEvents[id - 1].first, accessEvents[id - 1].second};
-            //forbid both reading and writing
-            int curStateRead = WaitForSingleObject(evs[0], 0);
-            int curStateWrite = WaitForSingleObject(evs[1], 0);
+            int curStateRead = -1; 
+            int curStateWrite = -1;
+            HANDLE evs[2];
+            if (id <= employees.size()) {
+                evs[0] = accessEvents[id - 1].first;
+                evs[1] = accessEvents[id - 1].second;
+                //forbid both reading and writing
+                curStateRead = WaitForSingleObject(evs[0], 0);
+                curStateWrite = WaitForSingleObject(evs[1], 0);
+            }
             if (curStateRead == WAIT_TIMEOUT || curStateWrite == WAIT_TIMEOUT ||
-                curStateRead == WAIT_FAILED || curStateWrite == WAIT_FAILED) {
+                curStateRead == WAIT_FAILED || curStateWrite == WAIT_FAILED || id > employees.size()) {
                 int resp = 0;
                 DWORD bytes;
                 //send status 0
@@ -152,6 +157,7 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
                 if (!send) {
                     std::cout << "access denied, but client will not recieve response\n";
                 }
+                if (id >= employees.size()) continue;
                 //set events if only one of them was set
                 if (curStateRead == WAIT_OBJECT_0)
                     SetEvent(evs[0]);
@@ -212,8 +218,11 @@ DWORD WINAPI Server::handleClient(LPVOID param) {
         else if (op == 2) { // Read
             int curStateWrite = -1;
             //check if the reading is allowed
-            int state = WaitForSingleObject(accessEvents[id - 1].first, 0);
-            if (state == WAIT_TIMEOUT || state == WAIT_FAILED) {
+            int state = -1;
+            if (id <= employees.size()) {
+                state = WaitForSingleObject(accessEvents[id - 1].first, 0);
+            }
+            if (state == WAIT_TIMEOUT || state == WAIT_FAILED || id > employees.size()) {
                 int resp = 0;
                 DWORD bytes;
                 //send status 0

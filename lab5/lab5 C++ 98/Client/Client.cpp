@@ -15,7 +15,7 @@ Client::Client(int pipeIndex) {
     );
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        throw std::exception("Не удалось подключиться к каналу");
+        throw std::exception("Unable to connect pipe\n");
     }
 }
 
@@ -29,23 +29,23 @@ void Client::run() {
     int ans = 0;
 
     while (true) {
-        std::cout << "\nВыберите метод:\n"
-            << "1. Модифицировать запись\n"
-            << "2. Прочитать запись\n"
-            << "3. Завершить процесс\n";
+        std::cout << "\nChoose action:\n"
+            << "1. Modify record\n"
+            << "2. Read record\n"
+            << "3. Exit this process\n";
 
         std::cin >> ans;
 
         if (ans == 1) {
             int id;
-            std::cout << "Введите ID сотрудника: ";
+            std::cout << "Enter ID: ";
             std::cin >> id;
             modifyEmployee(id);
             
         }
         else if (ans == 2) {
             int id;
-            std::cout << "Введите ID сотрудника: ";
+            std::cout << "Enter ID: ";
             std::cin >> id;
             readEmployee(id);
         }
@@ -54,8 +54,9 @@ void Client::run() {
             break;
         }
         else {
-            std::cout << "Некорректный ввод\n";
+            std::cout << "Invalid input\n";
         }
+        Sleep(1000);
     }
 }
 
@@ -78,7 +79,7 @@ void Client::modifyEmployee(int id) {
         return;
     }
     Employee emp = receiveEmployee();
-    std::cout << "Текущие данные: ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
+    std::cout << "Current: ID: " << emp.id << " Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
     std::cout << "Введите новое имя: ";
     std::cin >> emp.name;
@@ -123,8 +124,7 @@ void Client::readEmployee(int id) {
 void Client::sendMessage(int message) {
     DWORD written;
     if (!WriteFile(pipe, &message, sizeof(message), &written, NULL)) {
-        std::cerr << "Ошибка отправки сообщения. Код: " << GetLastError() << "\n";
-        throw std::exception("Ошибка отправки сообщения");
+        std::cerr << "Error sending message\n";
     }
 
 }
@@ -133,7 +133,7 @@ void Client::sendMessage(int message) {
 void Client::sendEmployee(Employee emp) {
     DWORD written;
     if (!WriteFile(pipe, &emp, sizeof(Employee), &written, NULL)) {
-        throw std::runtime_error("Ошибка отправки сотрудника");
+        std::cerr << "Error sending employee\n";
     }
 }
 
@@ -141,8 +141,7 @@ Employee Client::receiveEmployee() {
     Employee emp;
     DWORD read;
     if (!ReadFile(pipe, &emp, sizeof(Employee), &read, NULL)) {
-        std::cerr << "Ошибка чтения сотрудника. Код: " << GetLastError() << "\n";
-        throw std::runtime_error("Ошибка чтения сотрудника");
+        std::cerr << "Error reading employee\n";
     }
     return emp;
 }
