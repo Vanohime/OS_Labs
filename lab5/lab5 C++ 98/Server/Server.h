@@ -10,7 +10,7 @@ private:
     std::vector<Employee> employees;
     int clientCount;
 
-    std::vector<HANDLE> semaphores;
+    //std::vector<HANDLE> semaphores;
     std::vector<HANDLE> pipes;
     std::vector<HANDLE> threads;
     std::vector<HANDLE> clientEvents;

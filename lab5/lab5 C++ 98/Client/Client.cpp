@@ -7,7 +7,6 @@
 Client::Client(int pipeIndex) {
     pipeName = "\\\\.\\pipe\\pipe" + std::to_string(pipeIndex);
 
-    // Подключение к существующему пайпу
     pipe = CreateFile(
         pipeName.data(),
         GENERIC_READ | GENERIC_WRITE,
@@ -42,6 +41,7 @@ void Client::run() {
             std::cout << "Введите ID сотрудника: ";
             std::cin >> id;
             modifyEmployee(id);
+            
         }
         else if (ans == 2) {
             int id;
@@ -61,7 +61,22 @@ void Client::run() {
 
 void Client::modifyEmployee(int id) {
     sendMessage(id * 10 + 1);
-
+    int status = getStatus();
+    if (status == 1) {
+        std::cout << "access confrimed\n";
+    }
+    else if (status == 0) {
+        std::cout << "access denied\n";
+        return;
+    }
+    else if (status == -1) {
+        std::cout << "cannot get status\n";
+        return;
+    }
+    else {
+        std::cout << "client sent some piece of shit, idk what to do\n";
+        return;
+    }
     Employee emp = receiveEmployee();
     std::cout << "Текущие данные: ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
@@ -80,6 +95,22 @@ void Client::modifyEmployee(int id) {
 
 void Client::readEmployee(int id) {
     sendMessage(id * 10 + 2);
+    int status = getStatus();
+    if (status == 1) {
+        std::cout << "access confrimed\n";
+    }
+    else if (status == 0) {
+        std::cout << "access denied\n";
+        return;
+    }
+    else if (status == -1) {
+        std::cout << "cannot get status\n";
+        return;
+    }
+    else {
+        std::cout << "client sent some piece of shit, idk what to do\n";
+        return;
+    }
     Employee emp = receiveEmployee();
     std::cout << "Current ID:" << emp.id << "Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
