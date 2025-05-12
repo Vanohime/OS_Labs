@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <limits>
 
-
+const int sleepBeforeEndAccess = 1000;
 Client::Client(int pipeIndex) {
     pipeName = "\\\\.\\pipe\\pipe" + std::to_string(pipeIndex);
 
@@ -56,7 +56,7 @@ void Client::run() {
         else {
             std::cout << "Invalid input\n";
         }
-        Sleep(1000);
+        //Sleep(1000);
     }
 }
 
@@ -83,6 +83,7 @@ void Client::modifyEmployee(int id) {
 
     std::cout << "¬ведите новое им€: ";
     std::cin >> emp.name;
+    
     std::cout << "¬ведите часы: ";
     std::cin >> emp.hours;
 
@@ -91,6 +92,10 @@ void Client::modifyEmployee(int id) {
     std::cout << "enter char to end access to the record\n";
     char c;
     std::cin >> c;
+    if (this->pipeName[pipeName.size() - 1] == '1') {
+        std::cerr << "Sleeping\n";
+        Sleep(sleepBeforeEndAccess);
+    }
     sendMessage(1); 
 }
 
@@ -118,6 +123,10 @@ void Client::readEmployee(int id) {
     std::cout << "enter char to end access to the record\n";
     char c;
     std::cin >> c;
+    if (this->pipeName[pipeName.size() - 1] == '1') {
+        std::cerr << "Sleeping\n";
+        Sleep(sleepBeforeEndAccess);
+    }
     sendMessage(1); 
 }
 
