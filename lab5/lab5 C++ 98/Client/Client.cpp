@@ -81,10 +81,10 @@ void Client::modifyEmployee(int id) {
     Employee emp = receiveEmployee();
     std::cout << "Current: ID: " << emp.id << " Name: " << emp.name << " Hours: " << emp.hours << "\n";
 
-    std::cout << "¬ведите новое им€: ";
+    std::cout << "Enter new name: ";
     std::cin >> emp.name;
     
-    std::cout << "¬ведите часы: ";
+    std::cout << "Enter hours: ";
     std::cin >> emp.hours;
 
     sendEmployee(emp);

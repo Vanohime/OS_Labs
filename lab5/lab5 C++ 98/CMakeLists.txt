@@ -12,12 +12,28 @@ endif()
 project ("lab5 C++ 98")
 
 # Add source to this project's executable.
+
+
+
 add_executable (Server   "Client/Client.h" "Shared/Employee.h"  "Client/Client.cpp" "Server/Server.h" "Server/Server.cpp" "ServerMain.cpp")
 add_executable (Client "Client/Client.h" "Shared/Employee.h"  "Client/Client.cpp" "ClientMain.cpp")
+
+
+
+find_package(CxxTest)
+if(CXXTEST_FOUND)
+  include_directories(${CXXTEST_INCLUDE_DIR})
+  add_executable (Tests "tests/test_server.h" "tests/test_runner.cpp" "Client/Client.h" "Shared/Employee.h"  "Client/Client.cpp" "Server/Server.h" "Server/Server.cpp")
+
+  enable_testing()
+  add_test(NAME Tests COMMAND Tests)
+endif()
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Server PROPERTY CXX_STANDARD 20)
   set_property(TARGET Client PROPERTY CXX_STANDARD 20)
+  #set_property(TARGET Tests PROPERTY CXX_STANDARD 20)
 endif()
 
 # TODO: Add tests and install targets if needed.
+
