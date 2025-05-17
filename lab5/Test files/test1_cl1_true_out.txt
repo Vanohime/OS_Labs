@@ -1,0 +1,13 @@
+
+Choose action:
+1. Modify record
+2. Read record
+3. Exit this process
+Enter ID: access confrimed
+Current: ID: 1 Name: 1 Hours: 1
+Enter new name: Enter hours: enter char to end access to the record
+
+Choose action:
+1. Modify record
+2. Read record
+3. Exit this process
