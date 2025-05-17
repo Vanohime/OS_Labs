@@ -1,0 +1,12 @@
+store.txt
+2
+2
+y
+test1_cl0_in.txt
+test1_cl0_out.txt
+test1_cl1_in.txt
+test1_cl1_out.txt
+1
+1
+2
+2
